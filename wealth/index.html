@@ -1,37 +1,33 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Wealth - Connexion</title>
+    <title>Wealth - Login</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>Connexion</h1>
-    <form>
+    <h1>Login</h1>
+    <form id="login-form">
         <input type="email" placeholder="Email" required><br>
-        <input type="password" placeholder="Mot de passe" required><br>
-        <button type="submit">Se connecter</button>
+        <input type="password" placeholder="Password" required><br>
+        <button type="submit">Login</button>
     </form>
-    <p>Pas encore de compte ? <a href="register.html">Inscription</a></p>
-
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
+    <p>Don't have an account? <a href="register.html">Register</a></p>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
           apiKey: "AIzaSyAaUw8qD9ndSHk_WOU9J3FKtmNh3mY5VfU",
           authDomain: "wealth-app-8fa02.firebaseapp.com",
           projectId: "wealth-app-8fa02",
           storageBucket: "wealth-app-8fa02.firebasestorage.app",
           messagingSenderId: "783051438968",
           appId: "1:783051438968:web:4c96a97e8011e83622668d"
-        };
-      
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
+          };
+      firebase.initializeApp(firebaseConfig);
     </script>
+    <script src="js/auth.js"></script>
 </body>
 </html> 
