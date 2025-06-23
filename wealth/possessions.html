@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wealth - Possessions</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <h1>Possessions</h1>
+    <div id="possessions-balance">Balance: 0 ₹</div>
+    <div class="possessions-actions-row">
+        <button id="add-income-btn">Add Income</button>
+        <button id="add-expense-btn">Add Expense</button>
+    </div>
+    <h2>Transaction History</h2>
+    <div id="possessions-history"></div>
+    <script src="firebaseConfig.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+      firebase.initializeApp(window.firebaseConfig);
+    </script>
+    <script src="js/possessions.js"></script>
+</body>
+</html> 

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wealth - Savings</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <h1>Savings</h1>
+    <div class="savings-actions-row">
+        <button id="add-envelope-btn">Add Envelope</button>
+        <button id="transfer-btn">Transfer</button>
+        <button id="withdraw-btn">Withdraw</button>
+    </div>
+    <div id="envelopes-list"></div>
+    <div id="savings-history"></div>
+    <script src="firebaseConfig.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+      firebase.initializeApp(window.firebaseConfig);
+    </script>
+    <script src="js/savings.js"></script>
+</body>
+</html> 
