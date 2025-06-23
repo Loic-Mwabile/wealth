@@ -7,9 +7,27 @@
 </head>
 <body>
     <h1>Debts</h1>
-    <div id="debts-list"></div>
-    <div id="add-debt">
-        <button>Add debt</button>
+    <div class="debts-actions-row">
+        <button id="add-debt-btn">Add Debt</button>
+        <button id="pay-debt-btn">Pay Debt</button>
+        <button id="mark-paid-btn">Mark as Paid</button>
     </div>
+    <div id="debts-list"></div>
+    <div id="debts-history"></div>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAaUw8qD9ndSHk_WOU9J3FKtmNh3mY5VfU",
+        authDomain: "wealth-app-8fa02.firebaseapp.com",
+        projectId: "wealth-app-8fa02",
+        storageBucket: "wealth-app-8fa02.firebasestorage.app",
+        messagingSenderId: "783051438968",
+        appId: "1:783051438968:web:4c96a97e8011e83622668d"
+        };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <script src="js/debts.js"></script>
 </body>
 </html> 

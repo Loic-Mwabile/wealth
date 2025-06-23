@@ -7,12 +7,27 @@
 </head>
 <body>
     <h1>Possessions</h1>
-    <div id="balance"></div>
-    <div id="possessions-actions">
-        <button>Transfer to savings</button>
-        <button>Pay debt</button>
-        <button>Add expense</button>
+    <div id="possessions-balance">Balance: 0 ₹</div>
+    <div class="possessions-actions-row">
+        <button id="add-income-btn">Add Income</button>
+        <button id="add-expense-btn">Add Expense</button>
     </div>
-    <div id="history"></div>
+    <h2>Transaction History</h2>
+    <div id="possessions-history"></div>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyAaUw8qD9ndSHk_WOU9J3FKtmNh3mY5VfU",
+        authDomain: "wealth-app-8fa02.firebaseapp.com",
+        projectId: "wealth-app-8fa02",
+        storageBucket: "wealth-app-8fa02.firebasestorage.app",
+        messagingSenderId: "783051438968",
+        appId: "1:783051438968:web:4c96a97e8011e83622668d"
+        };
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <script src="js/possessions.js"></script>
 </body>
 </html> 
