@@ -1,5 +1,23 @@
 // dashboard.js 
 
+
+// Add both click and touchstart for mobile support
+document.querySelectorAll('.clickable-card').forEach(card => {
+  card.addEventListener('click', handleCardClick);
+  card.addEventListener('touchstart', handleCardClick);
+});
+
+function handleCardClick(e) {
+  const id = e.currentTarget.id;
+  if (id === 'possessions-card') window.location.href = 'possessions.html';
+  if (id === 'savings-card') window.location.href = 'savings.html';
+  if (id === 'debts-card') window.location.href = 'debts.html';
+  if (id === 'expenses-card') window.location.href = 'possessions.html#expenses';
+  if (id === 'networth-card') window.location.href = 'dashboard.html#networth';
+}
+
+
+
 // --- Modal helpers ---
 function showModal(modalId) {
   document.getElementById('modal-overlay').style.display = 'block';
