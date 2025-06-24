@@ -1,13 +1,27 @@
 // debts.js 
-
+function showModal(modalId) {
+  document.getElementById('modal-overlay').style.display = 'block';
+  document.getElementById(modalId).style.display = 'flex';
+}
+function closeModal() {
+  document.getElementById('modal-overlay').style.display = 'none';
+  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+}
 // --- Render Debts as Cards with Progress Bars ---
 function renderDebtsList(debtsArr) {
   const listDiv = document.getElementById('debts-list');
-  if (debtsArr.length === 0) {
+  const filter = document.getElementById('debt-status-filter')?.value || 'all';
+  let filtered = debtsArr;
+  if (filter === 'ongoing') {
+    filtered = debtsArr.filter(debt => (debt.amount || 0) > 0);
+  } else if (filter === 'completed') {
+    filtered = debtsArr.filter(debt => (debt.amount || 0) === 0);
+  }
+  if (filtered.length === 0) {
     listDiv.innerHTML = '<p>No debts yet.</p>';
     return;
   }
-  listDiv.innerHTML = debtsArr.map(debt => {
+  listDiv.innerHTML = filtered.map(debt => {
     const original = debt.originalAmount || debt.amount || 1;
     const left = debt.amount || 0;
     const paid = Math.max(0, original - left);
@@ -34,28 +48,50 @@ function renderDebtsList(debtsArr) {
   }).join('');
 }
 
+// Utility to add a robust tap/click listener
+function addTapListener(element, handler) {
+  let startX, startY, isScrolling;
+
+  element.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    isScrolling = false;
+  }, { passive: true });
+
+  element.addEventListener('pointermove', (e) => {
+    if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+      isScrolling = true;
+    }
+  }, { passive: true });
+
+  element.addEventListener('pointerup', (e) => {
+    if (!isScrolling && e.button === 0) {
+      handler(e);
+    }
+  });
+}
+
 // --- Add Debt Modal ---
 function renderAddDebtModal(onSubmit) {
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.style.display = 'flex';
+  const modal = document.getElementById('modal-add-debt');
   modal.innerHTML = `
-    <h3>Add Debt</h3>
-    <label>Name</label>
-    <input type="text" id="debt-name" required />
-    <label>Amount (₹)</label>
-    <input type="number" id="debt-amount" min="1" required />
-    <label>Due Date</label>
-    <input type="date" id="debt-due" />
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-debt" type="button">Add</button>
+    <div class="modal-content">
+      <h3>Add Debt</h3>
+      <label>Name</label>
+      <input type="text" id="debt-name" required />
+      <label>Amount (₹)</label>
+      <input type="number" id="debt-amount" min="1" required />
+      <label>Due Date</label>
+      <input type="date" id="debt-due" />
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-debt" type="button">Add</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = () => {
-    document.body.removeChild(modal);
-  };
-  modal.querySelector('#submit-debt').onclick = () => {
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-debt'), () => {
     const name = document.getElementById('debt-name').value.trim();
     const amount = parseFloat(document.getElementById('debt-amount').value);
     const dueDate = document.getElementById('debt-due').value;
@@ -68,74 +104,67 @@ function renderAddDebtModal(onSubmit) {
       return;
     }
     onSubmit(name, amount, dueDate);
-    document.body.removeChild(modal);
-  };
-  document.body.appendChild(modal);
+    closeModal();
+  });
 }
 
 // --- Pay Debt Modal ---
-function renderPayDebtModal(debtsArr, onSubmit) {
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.style.display = 'flex';
+function renderPayDebtModal(debtsArr, possessions, onSubmit) {
+  const modal = document.getElementById('modal-pay-debt');
   modal.innerHTML = `
-    <h3>Pay Debt</h3>
-    <label>Debt</label>
-    <select id="paydebt-select">
-      ${debtsArr.filter(d => (d.amount || 0) > 0).map(d => `<option value="${d.id}">${d.name} (${d.amount} ₹ left)</option>`).join('')}
-    </select>
-    <label>Amount (₹)</label>
-    <input type="number" id="paydebt-amount" min="1" required />
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-paydebt" type="button">Pay</button>
+    <div class="modal-content">
+      <h3>Pay Debt</h3>
+      <label>Amount (₹)</label>
+      <input type="number" id="paydebt-amount" min="1" max="${possessions}" required />
+      <label>From Debt</label>
+      <select id="paydebt-envelope">
+        ${debtsArr.map(d => `<option value="${d.id}">${d.name} (${d.amount} ₹)</option>`).join('')}
+      </select>
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-paydebt" type="button">Pay</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = () => {
-    document.body.removeChild(modal);
-  };
-  modal.querySelector('#submit-paydebt').onclick = () => {
-    const debtId = document.getElementById('paydebt-select').value;
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-paydebt'), () => {
+    const debtId = document.getElementById('paydebt-envelope').value;
     const amount = parseFloat(document.getElementById('paydebt-amount').value);
     if (!debtId || !amount || amount < 1) {
       alert('Please select a debt and enter a valid amount.');
       return;
     }
     onSubmit(debtId, amount);
-    document.body.removeChild(modal);
-  };
-  document.body.appendChild(modal);
+    closeModal();
+  });
 }
 
 // --- Mark as Paid Modal ---
 function renderMarkPaidModal(debtsArr, onSubmit) {
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.style.display = 'flex';
+  const modal = document.getElementById('modal-mark-paid');
   modal.innerHTML = `
-    <h3>Mark Debt as Paid</h3>
-    <label>Debt</label>
-    <select id="markpaid-select">
-      ${debtsArr.filter(d => (d.amount || 0) > 0).map(d => `<option value="${d.id}">${d.name} (${d.amount} ₹ left)</option>`).join('')}
-    </select>
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-markpaid" type="button">Mark as Paid</button>
+    <div class="modal-content">
+      <h3>Mark Debt as Paid</h3>
+      <label>Select Debt</label>
+      <select id="markpaid-envelope">
+        ${debtsArr.map(d => `<option value="${d.id}">${d.name} (${d.amount} ₹)</option>`).join('')}
+      </select>
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-markpaid" type="button">Mark as Paid</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = () => {
-    document.body.removeChild(modal);
-  };
-  modal.querySelector('#submit-markpaid').onclick = () => {
-    const debtId = document.getElementById('markpaid-select').value;
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-markpaid'), () => {
+    const debtId = document.getElementById('markpaid-envelope').value;
     if (!debtId) {
       alert('Please select a debt.');
       return;
     }
     onSubmit(debtId);
-    document.body.removeChild(modal);
-  };
-  document.body.appendChild(modal);
+    closeModal();
+  });
 }
 
 // --- Debt History Renderer with Advanced Filters and Revert ---
@@ -173,34 +202,34 @@ function renderDebtsHistory(history, debtsArr, userDocRef) {
     <ul id="debts-history-list"></ul>
   `;
   document.getElementById('debts-history-filter').value = filter;
-  document.getElementById('debts-history-filter').onchange = function() {
+  document.getElementById('debts-history-filter').addEventListener('change', function() {
     historyDiv.setAttribute('data-filter', this.value);
     renderDebtsHistory(history, debtsArr, userDocRef);
-  };
-  document.getElementById('debts-date-from').onchange = function() {
+  });
+  document.getElementById('debts-date-from').addEventListener('change', function() {
     historyDiv.setAttribute('data-date-from', this.value);
     renderDebtsHistory(history, debtsArr, userDocRef);
-  };
-  document.getElementById('debts-date-to').onchange = function() {
+  });
+  document.getElementById('debts-date-to').addEventListener('change', function() {
     historyDiv.setAttribute('data-date-to', this.value);
     renderDebtsHistory(history, debtsArr, userDocRef);
-  };
-  document.getElementById('debts-min-amount').onchange = function() {
+  });
+  document.getElementById('debts-min-amount').addEventListener('change', function() {
     historyDiv.setAttribute('data-min-amount', this.value);
     renderDebtsHistory(history, debtsArr, userDocRef);
-  };
-  document.getElementById('debts-max-amount').onchange = function() {
+  });
+  document.getElementById('debts-max-amount').addEventListener('change', function() {
     historyDiv.setAttribute('data-max-amount', this.value);
     renderDebtsHistory(history, debtsArr, userDocRef);
-  };
-  document.getElementById('debts-filter-reset').onclick = function() {
+  });
+  addTapListener(document.getElementById('debts-filter-reset'), function() {
     historyDiv.setAttribute('data-filter', 'all');
     historyDiv.setAttribute('data-date-from', '');
     historyDiv.setAttribute('data-date-to', '');
     historyDiv.setAttribute('data-min-amount', '');
     historyDiv.setAttribute('data-max-amount', '');
     renderDebtsHistory(history, debtsArr, userDocRef);
-  };
+  });
   // Filtered history
   let filtered = history;
   if (filter !== 'all') filtered = filtered.filter(h => h.type === filter);
@@ -226,12 +255,12 @@ function renderDebtsHistory(history, debtsArr, userDocRef) {
   }).join('');
   // Add event listeners for revert buttons
   Array.from(list.querySelectorAll('.revert-btn')).forEach(btn => {
-    btn.onclick = async function() {
+    addTapListener(btn, async function() {
       const idx = parseInt(btn.getAttribute('data-idx'));
       if (!confirm('Are you sure you want to revert this transaction?')) return;
       await revertDebtTransaction(history, idx, debtsArr, userDocRef);
       location.reload();
-    };
+    });
   });
 }
 
@@ -243,6 +272,11 @@ async function revertDebtTransaction(history, idx, debtsArr, userDocRef) {
     // Add the amount back to the debt
     const dIdx = newDebts.findIndex(d => d.name === tx.debt);
     if (dIdx !== -1) newDebts[dIdx].amount += tx.amount;
+    // Also add the amount back to possessions
+    const doc = await userDocRef.get();
+    const data = doc.data();
+    const possessions = (data.possessions?.balance || 0) + tx.amount;
+    await userDocRef.update({ 'possessions.balance': possessions });
   } else if (tx.type === 'add') {
     // Remove the debt
     newDebts = newDebts.filter(d => d.name !== tx.debt);
@@ -267,8 +301,8 @@ async function revertDebtTransaction(history, idx, debtsArr, userDocRef) {
 }
 
 // --- Main Logic ---
-firebase.auth().onAuthStateChanged(async function(user) {
-  if (!user) return;
+protectPage(async function(user) {
+  // All page logic goes here
   const userId = user.uid;
   const userDocRef = firebase.firestore().collection('users').doc(userId);
 
@@ -278,11 +312,15 @@ firebase.auth().onAuthStateChanged(async function(user) {
     const data = doc.data();
     const debtsArr = data.debts || [];
     const debtsHistory = data.debtsHistory || [];
+
     renderDebtsList(debtsArr);
+    // Set the filter to 'ongoing' if not already set
+    const filterSelect = document.getElementById('debt-status-filter');
+    if (filterSelect && !filterSelect.value) filterSelect.value = 'ongoing';
     renderDebtsHistory(debtsHistory, debtsArr, userDocRef);
 
     // Add Debt
-    document.getElementById('add-debt-btn').onclick = function() {
+    addTapListener(document.getElementById('add-debt-btn'), function() {
       renderAddDebtModal(async (name, amount, dueDate) => {
         const id = 'debt' + Date.now();
         const newDebt = { id, name, amount, originalAmount: amount, dueDate };
@@ -294,30 +332,41 @@ firebase.auth().onAuthStateChanged(async function(user) {
         await userDocRef.update({ debts: newArr, debtsHistory: newHistory });
         location.reload();
       });
-    };
+      showModal('modal-add-debt');
+    });
 
     // Pay Debt
-    document.getElementById('pay-debt-btn').onclick = function() {
-      renderPayDebtModal(debtsArr, async (debtId, amount) => {
+    addTapListener(document.getElementById('pay-debt-btn'), function() {
+      renderPayDebtModal(debtsArr, data.possessions?.balance || 0, async (debtId, amount) => {
         const idx = debtsArr.findIndex(d => d.id === debtId);
         if (idx === -1) return;
         if (debtsArr[idx].amount < amount) {
           alert('Not enough debt left to pay this amount.');
           return;
         }
+        if ((data.possessions?.balance || 0) < amount) {
+          alert('Not enough possessions to pay this debt.');
+          return;
+        }
         debtsArr[idx].amount -= amount;
         if (debtsArr[idx].amount < 0) debtsArr[idx].amount = 0;
+        const newPossessions = (data.possessions?.balance || 0) - amount;
         const newHistory = [
           ...(debtsHistory || []),
           { type: 'pay', debt: debtsArr[idx].name, amount, date: new Date().toISOString().slice(0,10) }
         ];
-        await userDocRef.update({ debts: debtsArr, debtsHistory: newHistory });
+        await userDocRef.update({
+          debts: debtsArr,
+          debtsHistory: newHistory,
+          'possessions.balance': newPossessions
+        });
         location.reload();
       });
-    };
+      showModal('modal-pay-debt');
+    });
 
     // Mark as Paid
-    document.getElementById('mark-paid-btn').onclick = function() {
+    addTapListener(document.getElementById('mark-paid-btn'), function() {
       renderMarkPaidModal(debtsArr, async (debtId) => {
         const idx = debtsArr.findIndex(d => d.id === debtId);
         if (idx === -1) return;
@@ -329,9 +378,24 @@ firebase.auth().onAuthStateChanged(async function(user) {
         await userDocRef.update({ debts: debtsArr, debtsHistory: newHistory });
         location.reload();
       });
-    };
+      showModal('modal-mark-paid');
+    });
 
   } catch (err) {
     alert('Error loading debts: ' + err.message);
   }
+});
+
+if (document.getElementById('modal-overlay')) {
+  addTapListener(document.getElementById('modal-overlay'), closeModal);
+}
+
+// Add event listener for the filter
+document.getElementById('debt-status-filter')?.addEventListener('change', function() {
+  const userId = firebase.auth().currentUser?.uid;
+  if (!userId) return;
+  firebase.firestore().collection('users').doc(userId).get().then(doc => {
+    const data = doc.data();
+    renderDebtsList(data.debts || []);
+  });
 }); 

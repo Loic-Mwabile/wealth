@@ -13,8 +13,23 @@
         <button id="pay-debt-btn">Pay Debt</button>
         <button id="mark-paid-btn">Mark as Paid</button>
     </div>
+    <div style="max-width:700px;margin:0 auto 16px auto;">
+      <label for="debt-status-filter">Show:</label>
+      <select id="debt-status-filter">
+        <option value="all">All</option>
+        <option value="ongoing" selected>Ongoing</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
     <div id="debts-list"></div>
     <div id="debts-history"></div>
+
+    <!-- Modals -->
+    <div id="modal-overlay" class="modal-overlay" style="display:none;"></div>
+    <div id="modal-add-debt" class="modal" style="display:none;"></div>
+    <div id="modal-pay-debt" class="modal" style="display:none;"></div>
+    <div id="modal-mark-paid" class="modal" style="display:none;"></div>
+
     <script src="firebaseConfig.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -22,6 +37,7 @@
     <script>
       firebase.initializeApp(window.firebaseConfig);
     </script>
+    <script src="js/auth.js"></script>
     <script src="js/debts.js"></script>
 </body>
 </html> 

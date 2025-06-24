@@ -1,5 +1,29 @@
 // savings.js 
 
+// Utility to add a robust tap/click listener
+function addTapListener(element, handler) {
+  let startX, startY, isScrolling;
+
+  element.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    isScrolling = false;
+  }, { passive: true });
+
+  element.addEventListener('pointermove', (e) => {
+    if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+      isScrolling = true;
+    }
+  }, { passive: true });
+
+  element.addEventListener('pointerup', (e) => {
+    if (!isScrolling && e.button === 0) {
+      handler(e);
+    }
+  });
+}
+
 // --- Modal helpers ---
 function showModal(modalId) {
   document.getElementById('modal-overlay').style.display = 'block';
@@ -10,27 +34,29 @@ function closeModal() {
   document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
 }
 if (document.getElementById('modal-overlay')) {
-  document.getElementById('modal-overlay').onclick = closeModal;
+  addTapListener(document.getElementById('modal-overlay'), closeModal);
 }
 
 // --- Add Envelope Modal ---
 function renderAddEnvelopeModal(onSubmit) {
   const modal = document.getElementById('modal-add-envelope');
   modal.innerHTML = `
-    <h3>Add Savings Envelope</h3>
-    <label>Name</label>
-    <input type="text" id="envelope-name" required />
-    <label>Initial Amount (₹)</label>
-    <input type="number" id="envelope-amount" min="0" value="0" required />
-    <label>Goal (₹)</label>
-    <input type="number" id="envelope-goal" min="1" value="100" required />
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-envelope" type="button">Add</button>
+    <div class="modal-content">
+      <h3>Add Savings Envelope</h3>
+      <label>Name</label>
+      <input type="text" id="envelope-name" required />
+      <label>Initial Amount (₹)</label>
+      <input type="number" id="envelope-amount" min="0" value="0" required />
+      <label>Goal (₹)</label>
+      <input type="number" id="envelope-goal" min="1" value="100" required />
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-envelope" type="button">Add</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = closeModal;
-  modal.querySelector('#submit-envelope').onclick = () => {
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-envelope'), () => {
     const name = document.getElementById('envelope-name').value.trim();
     const amount = parseFloat(document.getElementById('envelope-amount').value);
     const goal = parseFloat(document.getElementById('envelope-goal').value);
@@ -47,27 +73,29 @@ function renderAddEnvelopeModal(onSubmit) {
       return;
     }
     onSubmit(name, amount, goal);
-  };
+  });
 }
 
 // --- Transfer Modal ---
 function renderTransferModal(possessions, savingsArr, onSubmit) {
   const modal = document.getElementById('modal-transfer');
   modal.innerHTML = `
-    <h3>Transfer to Savings</h3>
-    <label>Amount (₹)</label>
-    <input type="number" id="transfer-amount" min="1" max="${possessions}" required />
-    <label>Savings Envelope</label>
-    <select id="transfer-envelope">
-      ${savingsArr.map(s => `<option value="${s.id}">${s.name} (${s.amount} ₹)</option>`).join('')}
-    </select>
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-transfer" type="button">Transfer</button>
+    <div class="modal-content">
+      <h3>Transfer to Savings</h3>
+      <label>Amount (₹)</label>
+      <input type="number" id="transfer-amount" min="1" max="${possessions}" required />
+      <label>Savings Envelope</label>
+      <select id="transfer-envelope">
+        ${savingsArr.map(s => `<option value="${s.id}">${s.name} (${s.amount} ₹)</option>`).join('')}
+      </select>
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-transfer" type="button">Transfer</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = closeModal;
-  modal.querySelector('#submit-transfer').onclick = () => {
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-transfer'), () => {
     const amount = parseFloat(document.getElementById('transfer-amount').value);
     const envelopeId = document.getElementById('transfer-envelope').value;
     if (!amount || amount <= 0 || amount > possessions) {
@@ -75,27 +103,29 @@ function renderTransferModal(possessions, savingsArr, onSubmit) {
       return;
     }
     onSubmit(amount, envelopeId);
-  };
+  });
 }
 
 // --- Withdraw Modal ---
 function renderWithdrawModal(savingsArr, onSubmit) {
   const modal = document.getElementById('modal-withdraw');
   modal.innerHTML = `
-    <h3>Withdraw from Savings</h3>
-    <label>Amount (₹)</label>
-    <input type="number" id="withdraw-amount" min="1" required />
-    <label>Savings Envelope</label>
-    <select id="withdraw-envelope">
-      ${savingsArr.map(s => `<option value="${s.id}" data-max="${s.amount}">${s.name} (${s.amount} ₹)</option>`).join('')}
-    </select>
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-withdraw" type="button">Withdraw</button>
+    <div class="modal-content">
+      <h3>Withdraw from Savings</h3>
+      <label>Amount (₹)</label>
+      <input type="number" id="withdraw-amount" min="1" required />
+      <label>Savings Envelope</label>
+      <select id="withdraw-envelope">
+        ${savingsArr.map(s => `<option value="${s.id}" data-max="${s.amount}">${s.name} (${s.amount} ₹)</option>`).join('')}
+      </select>
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-withdraw" type="button">Withdraw</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = closeModal;
-  modal.querySelector('#submit-withdraw').onclick = () => {
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-withdraw'), () => {
     const amount = parseFloat(document.getElementById('withdraw-amount').value);
     const envelopeId = document.getElementById('withdraw-envelope').value;
     const max = parseFloat(document.querySelector('#withdraw-envelope option:checked').getAttribute('data-max'));
@@ -104,7 +134,7 @@ function renderWithdrawModal(savingsArr, onSubmit) {
       return;
     }
     onSubmit(amount, envelopeId);
-  };
+  });
 }
 
 // --- Savings History Renderer with Advanced Filters and Revert ---
@@ -142,34 +172,34 @@ function renderSavingsHistory(history, savingsArr, possessions, userDocRef) {
     <ul id="savings-history-list"></ul>
   `;
   document.getElementById('savings-history-filter').value = filter;
-  document.getElementById('savings-history-filter').onchange = function() {
+  document.getElementById('savings-history-filter').addEventListener('change', function() {
     historyDiv.setAttribute('data-filter', this.value);
     renderSavingsHistory(history, savingsArr, possessions, userDocRef);
-  };
-  document.getElementById('savings-date-from').onchange = function() {
+  });
+  document.getElementById('savings-date-from').addEventListener('change', function() {
     historyDiv.setAttribute('data-date-from', this.value);
     renderSavingsHistory(history, savingsArr, possessions, userDocRef);
-  };
-  document.getElementById('savings-date-to').onchange = function() {
+  });
+  document.getElementById('savings-date-to').addEventListener('change', function() {
     historyDiv.setAttribute('data-date-to', this.value);
     renderSavingsHistory(history, savingsArr, possessions, userDocRef);
-  };
-  document.getElementById('savings-min-amount').onchange = function() {
+  });
+  document.getElementById('savings-min-amount').addEventListener('change', function() {
     historyDiv.setAttribute('data-min-amount', this.value);
     renderSavingsHistory(history, savingsArr, possessions, userDocRef);
-  };
-  document.getElementById('savings-max-amount').onchange = function() {
+  });
+  document.getElementById('savings-max-amount').addEventListener('change', function() {
     historyDiv.setAttribute('data-max-amount', this.value);
     renderSavingsHistory(history, savingsArr, possessions, userDocRef);
-  };
-  document.getElementById('savings-filter-reset').onclick = function() {
+  });
+  addTapListener(document.getElementById('savings-filter-reset'), function() {
     historyDiv.setAttribute('data-filter', 'all');
     historyDiv.setAttribute('data-date-from', '');
     historyDiv.setAttribute('data-date-to', '');
     historyDiv.setAttribute('data-min-amount', '');
     historyDiv.setAttribute('data-max-amount', '');
     renderSavingsHistory(history, savingsArr, possessions, userDocRef);
-  };
+  });
   // Filtered history
   let filtered = history;
   if (filter !== 'all') filtered = filtered.filter(h => h.type === filter);
@@ -195,12 +225,12 @@ function renderSavingsHistory(history, savingsArr, possessions, userDocRef) {
   }).join('');
   // Add event listeners for revert buttons
   Array.from(list.querySelectorAll('.revert-btn')).forEach(btn => {
-    btn.onclick = async function() {
+    addTapListener(btn, async function() {
       const idx = parseInt(btn.getAttribute('data-idx'));
       if (!confirm('Are you sure you want to revert this transaction?')) return;
       await revertSavingsTransaction(history, idx, savingsArr, possessions, userDocRef);
       location.reload();
-    };
+    });
   });
 }
 
@@ -220,23 +250,36 @@ async function revertSavingsTransaction(history, idx, savingsArr, possessions, u
     if (sIdx !== -1) newSavings[sIdx].amount += tx.amount;
     newPossessions -= tx.amount;
   } else if (tx.type === 'envelope-add') {
-    // Remove the envelope
+    // Remove the envelope and add the initial amount back to possessions
+    const env = newSavings.find(s => s.name === tx.envelope);
+    if (env) newPossessions += env.amount;
     newSavings = newSavings.filter(s => s.name !== tx.envelope);
   }
   // Remove the reverted transaction from history
   const newHistory = [...history];
   newHistory.splice(idx, 1);
-  await userDocRef.update({ savings: newSavings, 'possessions.balance': newPossessions, savingsHistory: newHistory });
+  await userDocRef.update({
+    savings: newSavings,
+    'possessions.balance': newPossessions,
+    savingsHistory: newHistory
+  });
 }
 
 // --- Render Envelopes as Cards with Progress Bars ---
 function renderEnvelopesList(savingsArr) {
   const listDiv = document.getElementById('envelopes-list');
-  if (savingsArr.length === 0) {
+  const filter = document.getElementById('envelope-status-filter')?.value || 'all';
+  let filtered = savingsArr;
+  if (filter === 'ongoing') {
+    filtered = savingsArr.filter(env => (env.amount || 0) < (env.goal || 1));
+  } else if (filter === 'completed') {
+    filtered = savingsArr.filter(env => (env.amount || 0) >= (env.goal || 1));
+  }
+  if (filtered.length === 0) {
     listDiv.innerHTML = '<p>No savings envelopes yet.</p>';
     return;
   }
-  listDiv.innerHTML = savingsArr.map(env => {
+  listDiv.innerHTML = filtered.map(env => {
     const goal = env.goal || 1; // Avoid division by zero
     const percent = Math.min(100, Math.round((env.amount / goal) * 100));
     return `
@@ -257,9 +300,19 @@ function renderEnvelopesList(savingsArr) {
   }).join('');
 }
 
+// Add event listener for the filter
+document.getElementById('envelope-status-filter')?.addEventListener('change', function() {
+  // You may need to fetch the latest savingsArr from Firestore or keep it in a variable
+  const userId = firebase.auth().currentUser?.uid;
+  if (!userId) return;
+  firebase.firestore().collection('users').doc(userId).get().then(doc => {
+    const data = doc.data();
+    renderEnvelopesList(data.savings || []);
+  });
+});
+
 // --- Main Logic ---
-firebase.auth().onAuthStateChanged(async function(user) {
-  if (!user) return;
+protectPage(async function(user) {
   const userId = user.uid;
   const userDocRef = firebase.firestore().collection('users').doc(userId);
 
@@ -305,21 +358,15 @@ firebase.auth().onAuthStateChanged(async function(user) {
     const savingsArr = data.savings || [];
     const possessions = data.possessions?.balance || 0;
     const savingsHistory = data.savingsHistory || [];
-    const listDiv = document.getElementById('envelopes-list');
-    if (savingsArr.length === 0) {
-      listDiv.innerHTML = '<p>No savings envelopes yet.</p>';
-    } else {
-      listDiv.innerHTML = savingsArr.map(env =>
-        `<div class="savings-envelope">
-          <b>${env.name}</b>: <span>${env.amount} ₹</span>
-        </div>`
-      ).join('');
-    }
-    renderSavingsHistory(savingsHistory, savingsArr, possessions, userDocRef);
+
     renderEnvelopesList(savingsArr);
+    // Set the filter to 'ongoing' if not already set
+    const filterSelect = document.getElementById('envelope-status-filter');
+    if (filterSelect && !filterSelect.value) filterSelect.value = 'ongoing';
+    renderSavingsHistory(savingsHistory, savingsArr, possessions, userDocRef);
 
     // Add Envelope
-    document.getElementById('add-envelope-btn').onclick = function() {
+    addTapListener(document.getElementById('add-envelope-btn'), function() {
       renderAddEnvelopeModal(async (name, amount, goal) => {
         const id = 'save' + Date.now();
         const newEnvelope = { id, name, amount, goal };
@@ -336,10 +383,10 @@ firebase.auth().onAuthStateChanged(async function(user) {
         location.reload();
       });
       showModal('modal-add-envelope');
-    };
+    });
 
     // Transfer
-    document.getElementById('transfer-btn').onclick = function() {
+    addTapListener(document.getElementById('transfer-btn'), function() {
       if (savingsArr.length === 0) {
         alert('No envelopes available. Please add an envelope first.');
         return;
@@ -362,10 +409,10 @@ firebase.auth().onAuthStateChanged(async function(user) {
         location.reload();
       });
       showModal('modal-transfer');
-    };
+    });
 
     // Withdraw
-    document.getElementById('withdraw-btn').onclick = function() {
+    addTapListener(document.getElementById('withdraw-btn'), function() {
       renderWithdrawModal(savingsArr, async (amount, envelopeId) => {
         const idx = savingsArr.findIndex(s => s.id === envelopeId);
         if (idx === -1) return;
@@ -388,7 +435,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
         location.reload();
       });
       showModal('modal-withdraw');
-    };
+    });
 
   } catch (err) {
     alert('Error loading savings: ' + err.message);

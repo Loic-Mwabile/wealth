@@ -1,5 +1,29 @@
 // possessions.js 
 
+// Utility to add a robust tap/click listener
+function addTapListener(element, handler) {
+  let startX, startY, isScrolling;
+
+  element.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    isScrolling = false;
+  }, { passive: true });
+
+  element.addEventListener('pointermove', (e) => {
+    if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+      isScrolling = true;
+    }
+  }, { passive: true });
+
+  element.addEventListener('pointerup', (e) => {
+    if (!isScrolling && e.button === 0) {
+      handler(e);
+    }
+  });
+}
+
 // --- Modal helpers ---
 function showModal(modalId) {
   document.getElementById('modal-overlay').style.display = 'block';
@@ -20,18 +44,20 @@ function renderAddIncomeModal(onSubmit) {
     document.body.appendChild(modal);
   }
   modal.innerHTML = `
-    <h3>Add Income</h3>
-    <label>Amount (₹)</label>
-    <input type="number" id="income-amount" min="1" required />
-    <label>Source</label>
-    <input type="text" id="income-source" placeholder="e.g. Salary, Freelance" />
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-income" type="button">Add</button>
+    <div class="modal-content">
+      <h3>Add Income</h3>
+      <label>Amount (₹)</label>
+      <input type="number" id="income-amount" min="1" required />
+      <label>Source</label>
+      <input type="text" id="income-source" placeholder="e.g. Salary, Freelance" />
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-income" type="button">Add</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = closeModal;
-  modal.querySelector('#submit-income').onclick = () => {
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-income'), () => {
     const amount = parseFloat(document.getElementById('income-amount').value);
     const source = document.getElementById('income-source').value || 'Manual';
     if (!amount || amount <= 0) {
@@ -39,7 +65,7 @@ function renderAddIncomeModal(onSubmit) {
       return;
     }
     onSubmit(amount, source);
-  };
+  });
   showModal('modal-add-income');
 }
 
@@ -53,27 +79,29 @@ function renderAddExpenseModal(onSubmit) {
     document.body.appendChild(modal);
   }
   modal.innerHTML = `
-    <h3>Add Expense</h3>
-    <label>Amount (₹)</label>
-    <input type="number" id="expense-amount" min="1" required />
-    <label>Category</label>
-    <select id="expense-category">
-      <option value="Food">Food</option>
-      <option value="Rent">Rent</option>
-      <option value="Transport">Transport</option>
-      <option value="Shopping">Shopping</option>
-      <option value="Other">Other</option>
-    </select>
-    <input type="text" id="expense-category-custom" placeholder="Or enter custom category" />
-    <label>Description</label>
-    <input type="text" id="expense-desc" placeholder="Optional description" />
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-expense" type="button">Add</button>
+    <div class="modal-content">
+      <h3>Add Expense</h3>
+      <label>Amount (₹)</label>
+      <input type="number" id="expense-amount" min="1" required />
+      <label>Category</label>
+      <select id="expense-category">
+        <option value="Food">Food</option>
+        <option value="Rent">Rent</option>
+        <option value="Transport">Transport</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="text" id="expense-category-custom" placeholder="Or enter custom category" />
+      <label>Description</label>
+      <input type="text" id="expense-desc" placeholder="Optional description" />
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-expense" type="button">Add</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = closeModal;
-  modal.querySelector('#submit-expense').onclick = () => {
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-expense'), () => {
     const amount = parseFloat(document.getElementById('expense-amount').value);
     let category = document.getElementById('expense-category').value;
     const custom = document.getElementById('expense-category-custom').value.trim();
@@ -84,7 +112,7 @@ function renderAddExpenseModal(onSubmit) {
       return;
     }
     onSubmit(amount, category, desc);
-  };
+  });
   showModal('modal-add-expense');
 }
 
@@ -122,34 +150,34 @@ function renderPossessionsHistory(history, possessions, userDocRef) {
     <ul id="possessions-history-list"></ul>
   `;
   document.getElementById('possessions-history-filter').value = filter;
-  document.getElementById('possessions-history-filter').onchange = function() {
+  document.getElementById('possessions-history-filter').addEventListener('change', function() {
     historyDiv.setAttribute('data-filter', this.value);
     renderPossessionsHistory(history, possessions, userDocRef);
-  };
-  document.getElementById('possessions-date-from').onchange = function() {
+  });
+  document.getElementById('possessions-date-from').addEventListener('change', function() {
     historyDiv.setAttribute('data-date-from', this.value);
     renderPossessionsHistory(history, possessions, userDocRef);
-  };
-  document.getElementById('possessions-date-to').onchange = function() {
+  });
+  document.getElementById('possessions-date-to').addEventListener('change', function() {
     historyDiv.setAttribute('data-date-to', this.value);
     renderPossessionsHistory(history, possessions, userDocRef);
-  };
-  document.getElementById('possessions-min-amount').onchange = function() {
+  });
+  document.getElementById('possessions-min-amount').addEventListener('change', function() {
     historyDiv.setAttribute('data-min-amount', this.value);
     renderPossessionsHistory(history, possessions, userDocRef);
-  };
-  document.getElementById('possessions-max-amount').onchange = function() {
+  });
+  document.getElementById('possessions-max-amount').addEventListener('change', function() {
     historyDiv.setAttribute('data-max-amount', this.value);
     renderPossessionsHistory(history, possessions, userDocRef);
-  };
-  document.getElementById('possessions-filter-reset').onclick = function() {
+  });
+  addTapListener(document.getElementById('possessions-filter-reset'), function() {
     historyDiv.setAttribute('data-filter', 'all');
     historyDiv.setAttribute('data-date-from', '');
     historyDiv.setAttribute('data-date-to', '');
     historyDiv.setAttribute('data-min-amount', '');
     historyDiv.setAttribute('data-max-amount', '');
     renderPossessionsHistory(history, possessions, userDocRef);
-  };
+  });
   // Filtered history
   let filtered = history;
   if (filter !== 'all') filtered = filtered.filter(h => h.type === filter);
@@ -173,12 +201,12 @@ function renderPossessionsHistory(history, possessions, userDocRef) {
   }).join('');
   // Add event listeners for revert buttons
   Array.from(list.querySelectorAll('.revert-btn')).forEach(btn => {
-    btn.onclick = async function() {
+    addTapListener(btn, async function() {
       const idx = parseInt(btn.getAttribute('data-idx'));
       if (!confirm('Are you sure you want to revert this transaction?')) return;
       await revertPossessionsTransaction(history, idx, possessions, userDocRef);
       location.reload();
-    };
+    });
   });
 }
 
@@ -198,8 +226,8 @@ async function revertPossessionsTransaction(history, idx, possessions, userDocRe
 }
 
 // --- Main Logic ---
-firebase.auth().onAuthStateChanged(async function(user) {
-  if (!user) return;
+protectPage(async function(user) {
+  // All page logic goes here
   const userId = user.uid;
   const userDocRef = firebase.firestore().collection('users').doc(userId);
 
@@ -222,7 +250,7 @@ firebase.auth().onAuthStateChanged(async function(user) {
     renderPossessionsHistory(history, possessions, userDocRef);
 
     // Add Income
-    document.getElementById('add-income-btn').onclick = function() {
+    addTapListener(document.getElementById('add-income-btn'), function() {
       renderAddIncomeModal(async (amount, source) => {
         const newBalance = possessions + amount;
         const newHistory = [
@@ -236,10 +264,10 @@ firebase.auth().onAuthStateChanged(async function(user) {
         closeModal();
         location.reload();
       });
-    };
+    });
 
     // Add Expense
-    document.getElementById('add-expense-btn').onclick = function() {
+    addTapListener(document.getElementById('add-expense-btn'), function() {
       renderAddExpenseModal(async (amount, category, desc) => {
         const newBalance = possessions - amount;
         const newHistory = [
@@ -253,9 +281,13 @@ firebase.auth().onAuthStateChanged(async function(user) {
         closeModal();
         location.reload();
       });
-    };
+    });
 
   } catch (err) {
     alert('Error loading possessions: ' + err.message);
   }
-}); 
+});
+
+if (document.getElementById('modal-overlay')) {
+  addTapListener(document.getElementById('modal-overlay'), closeModal);
+} 

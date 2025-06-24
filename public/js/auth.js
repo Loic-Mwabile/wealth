@@ -45,13 +45,18 @@ if (document.getElementById('login-form')) {
 }
 
 // --- Auth State Check (for protected pages) ---
-const protectedPages = ['dashboard.html', 'income.html', 'savings.html', 'debts.html', 'possessions.html'];
-const currentPage = window.location.pathname.split('/').pop();
+function protectPage(pageLogic) {
+  // Hide body until auth is checked
+  document.body.classList.add('auth-loading');
 
-if (protectedPages.includes(currentPage)) {
   firebase.auth().onAuthStateChanged(function(user) {
-    if (!user) {
-      // Not logged in, redirect to login
+    if (user) {
+      // User is logged in, run the page-specific logic
+      pageLogic(user);
+      // Show the page
+      document.body.classList.remove('auth-loading');
+    } else {
+      // Not logged in, redirect to login page
       window.location.href = 'index.html';
     }
   });

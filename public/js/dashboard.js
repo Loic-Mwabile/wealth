@@ -3,8 +3,7 @@
 
 // Add both click and touchstart for mobile support
 document.querySelectorAll('.clickable-card').forEach(card => {
-  card.addEventListener('click', handleCardClick);
-  card.addEventListener('touchstart', handleCardClick);
+  addTapListener(card, handleCardClick);
 });
 
 function handleCardClick(e) {
@@ -12,8 +11,6 @@ function handleCardClick(e) {
   if (id === 'possessions-card') window.location.href = 'possessions.html';
   if (id === 'savings-card') window.location.href = 'savings.html';
   if (id === 'debts-card') window.location.href = 'debts.html';
-  if (id === 'expenses-card') window.location.href = 'possessions.html#expenses';
-  if (id === 'networth-card') window.location.href = 'dashboard.html#networth';
 }
 
 
@@ -27,24 +24,26 @@ function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
   document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
 }
-document.getElementById('modal-overlay').onclick = closeModal;
+addTapListener(document.getElementById('modal-overlay'), closeModal);
 
 // --- Add Income Modal ---
 function renderAddIncomeModal(onSubmit) {
   const modal = document.getElementById('modal-add-income');
   modal.innerHTML = `
-    <h3>Add Income</h3>
-    <label>Amount (₹)</label>
-    <input type="number" id="income-amount" min="1" required />
-    <label>Source</label>
-    <input type="text" id="income-source" placeholder="e.g. Salary, Freelance" />
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-income" type="button">Add</button>
+    <div class="modal-content">
+      <h3>Add Income</h3>
+      <label>Amount (₹)</label>
+      <input type="number" id="income-amount" min="1" required />
+      <label>Source</label>
+      <input type="text" id="income-source" placeholder="e.g. Salary, Freelance" />
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-income" type="button">Add</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = closeModal;
-  modal.querySelector('#submit-income').onclick = () => {
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-income'), () => {
     const amount = parseFloat(document.getElementById('income-amount').value);
     const source = document.getElementById('income-source').value || 'Manual';
     if (!amount || amount <= 0) {
@@ -52,27 +51,29 @@ function renderAddIncomeModal(onSubmit) {
       return;
     }
     onSubmit(amount, source);
-  };
+  });
 }
 
 // --- Transfer to Savings Modal ---
 function renderTransferModal(savingsArr, possessions, onSubmit) {
   const modal = document.getElementById('modal-transfer');
   modal.innerHTML = `
-    <h3>Transfer to Savings</h3>
-    <label>Amount (₹)</label>
-    <input type="number" id="transfer-amount" min="1" max="${possessions}" required />
-    <label>Savings Envelope</label>
-    <select id="transfer-envelope">
-      ${savingsArr.map(s => `<option value="${s.id}">${s.name} (${s.amount} ₹)</option>`).join('')}
-    </select>
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-transfer" type="button">Transfer</button>
+    <div class="modal-content">
+      <h3>Transfer to Savings</h3>
+      <label>Amount (₹)</label>
+      <input type="number" id="transfer-amount" min="1" max="${possessions}" required />
+      <label>Savings Envelope</label>
+      <select id="transfer-envelope">
+        ${savingsArr.map(s => `<option value="${s.id}">${s.name} (${s.amount} ₹)</option>`).join('')}
+      </select>
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-transfer" type="button">Transfer</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = closeModal;
-  modal.querySelector('#submit-transfer').onclick = () => {
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-transfer'), () => {
     const amount = parseFloat(document.getElementById('transfer-amount').value);
     const envelopeId = document.getElementById('transfer-envelope').value;
     if (!amount || amount <= 0 || amount > possessions) {
@@ -80,27 +81,29 @@ function renderTransferModal(savingsArr, possessions, onSubmit) {
       return;
     }
     onSubmit(amount, envelopeId);
-  };
+  });
 }
 
 // --- Pay Debt Modal ---
 function renderPayDebtModal(debtsArr, possessions, onSubmit) {
   const modal = document.getElementById('modal-pay-debt');
   modal.innerHTML = `
-    <h3>Pay Debt</h3>
-    <label>Amount (₹)</label>
-    <input type="number" id="paydebt-amount" min="1" max="${possessions}" required />
-    <label>Debt</label>
-    <select id="paydebt-envelope">
-      ${debtsArr.map(d => `<option value="${d.id}">${d.name} (${d.amount} ₹, Due: ${d.dueDate || 'N/A'})</option>`).join('')}
-    </select>
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-paydebt" type="button">Pay</button>
+    <div class="modal-content">
+      <h3>Pay Debt</h3>
+      <label>Amount (₹)</label>
+      <input type="number" id="paydebt-amount" min="1" max="${possessions}" required />
+      <label>Debt</label>
+      <select id="paydebt-envelope">
+        ${debtsArr.map(d => `<option value="${d.id}">${d.name} (${d.amount} ₹, Due: ${d.dueDate || 'N/A'})</option>`).join('')}
+      </select>
+      <div class="modal-actions">
+        <button class="cancel" type="button">Cancel</button>
+        <button id="submit-paydebt" type="button">Pay</button>
+      </div>
     </div>
   `;
-  modal.querySelector('.cancel').onclick = closeModal;
-  modal.querySelector('#submit-paydebt').onclick = () => {
+  addTapListener(modal.querySelector('.cancel'), closeModal);
+  addTapListener(modal.querySelector('#submit-paydebt'), () => {
     const amount = parseFloat(document.getElementById('paydebt-amount').value);
     const envelopeId = document.getElementById('paydebt-envelope').value;
     if (!amount || amount <= 0 || amount > possessions) {
@@ -108,41 +111,14 @@ function renderPayDebtModal(debtsArr, possessions, onSubmit) {
       return;
     }
     onSubmit(amount, envelopeId);
-  };
+  });
 }
 
 // --- Add Expense Modal ---
-function renderAddExpenseModal(possessions, onSubmit) {
-  const modal = document.getElementById('modal-add-expense');
-  modal.innerHTML = `
-    <h3>Add Expense</h3>
-    <label>Amount (₹)</label>
-    <input type="number" id="expense-amount" min="1" max="${possessions}" required />
-    <label>Category</label>
-    <input type="text" id="expense-category" placeholder="e.g. Food, Rent, Transport" />
-    <label>Description</label>
-    <input type="text" id="expense-desc" placeholder="Optional description" />
-    <div class="modal-actions">
-      <button class="cancel" type="button">Cancel</button>
-      <button id="submit-expense" type="button">Add</button>
-    </div>
-  `;
-  modal.querySelector('.cancel').onclick = closeModal;
-  modal.querySelector('#submit-expense').onclick = () => {
-    const amount = parseFloat(document.getElementById('expense-amount').value);
-    const category = document.getElementById('expense-category').value || 'General';
-    const desc = document.getElementById('expense-desc').value || '';
-    if (!amount || amount <= 0 || amount > possessions) {
-      alert('Please enter a valid amount.');
-      return;
-    }
-    onSubmit(amount, category, desc);
-  };
-}
+// This function will be removed.
 
-// Wait for Firebase Auth to get the current user
-firebase.auth().onAuthStateChanged(async function(user) {
-  if (!user) return;
+protectPage(async function(user) {
+  // All dashboard logic goes here
   const userId = user.uid;
   const userDocRef = firebase.firestore().collection('users').doc(userId);
 
@@ -157,17 +133,15 @@ firebase.auth().onAuthStateChanged(async function(user) {
     const savings = (data.savings || []).reduce((sum, s) => sum + (s.amount || 0), 0);
     const debts = (data.debts || []).reduce((sum, d) => sum + (d.amount || 0), 0);
     const netWorth = possessions + savings - debts;
-    const expenses = (data.possessions?.history || []).filter(h => h.type === 'expense').reduce((sum, e) => sum + (e.amount || 0), 0);
 
     // Display values in rupees
     document.getElementById('possessions-total').textContent = possessions + ' ₹';
     document.getElementById('savings-total').textContent = savings + ' ₹';
     document.getElementById('debts-total').textContent = debts + ' ₹';
-    document.getElementById('net-worth').textContent = netWorth + ' ₹';
-    document.getElementById('expenses-total').textContent = expenses + ' ₹';
+    document.getElementById('net-worth-value').textContent = netWorth + ' ₹';
 
     // --- Add Income Modal Logic ---
-    document.getElementById('add-income-btn').onclick = function() {
+    addTapListener(document.getElementById('add-income-btn'), function() {
       renderAddIncomeModal(async (amount, source) => {
         // Add to possessions balance and history
         const newBalance = possessions + amount;
@@ -183,10 +157,10 @@ firebase.auth().onAuthStateChanged(async function(user) {
         location.reload();
       });
       showModal('modal-add-income');
-    };
+    });
 
     // --- Transfer to Savings Modal Logic ---
-    document.getElementById('transfer-btn').onclick = function() {
+    addTapListener(document.getElementById('transfer-btn'), function() {
       let savingsArr = data.savings || [];
       if (savingsArr.length === 0) {
         savingsArr = [{ id: 'save001', name: 'General', amount: 0 }];
@@ -197,57 +171,57 @@ firebase.auth().onAuthStateChanged(async function(user) {
         if (idx === -1) return;
         savingsArr[idx].amount += amount;
         const newBalance = possessions - amount;
+        // Fetch and update savingsHistory
+        const doc = await userDocRef.get();
+        const data = doc.data();
+        const savingsHistory = data.savingsHistory || [];
+        const envelopeName = savingsArr[idx].name;
+        const newHistory = [
+          ...savingsHistory,
+          { type: 'transfer-in', envelope: envelopeName, amount, date: new Date().toISOString().slice(0,10) }
+        ];
         await userDocRef.update({
           'possessions.balance': newBalance,
-          savings: savingsArr
+          savings: savingsArr,
+          savingsHistory: newHistory
         });
         closeModal();
         location.reload();
       });
       showModal('modal-transfer');
-    };
+    });
 
     // --- Pay Debt Modal Logic ---
-    document.getElementById('pay-debt-btn').onclick = function() {
+    addTapListener(document.getElementById('pay-debt-btn'), function() {
       let debtsArr = data.debts || [];
       if (debtsArr.length === 0) {
         alert('No debts to pay!');
         return;
       }
       renderPayDebtModal(debtsArr, possessions, async (amount, envelopeId) => {
-        // Find the selected debt
         const idx = debtsArr.findIndex(d => d.id === envelopeId);
         if (idx === -1) return;
         debtsArr[idx].amount -= amount;
         if (debtsArr[idx].amount < 0) debtsArr[idx].amount = 0;
         const newBalance = possessions - amount;
+        // Fetch and update debtsHistory
+        const doc = await userDocRef.get();
+        const data = doc.data();
+        const debtsHistory = data.debtsHistory || [];
+        const newHistory = [
+          ...debtsHistory,
+          { type: 'pay', debt: debtsArr[idx].name, amount, date: new Date().toISOString().slice(0,10) }
+        ];
         await userDocRef.update({
           'possessions.balance': newBalance,
-          debts: debtsArr
+          debts: debtsArr,
+          debtsHistory: newHistory
         });
         closeModal();
         location.reload();
       });
       showModal('modal-pay-debt');
-    };
-
-    // --- Add Expense Modal Logic ---
-    document.getElementById('add-expense-btn').onclick = function() {
-      renderAddExpenseModal(possessions, async (amount, category, desc) => {
-        const newBalance = possessions - amount;
-        const newHistory = [
-          ...(data.possessions?.history || []),
-          { type: 'expense', category, description: desc, amount, date: new Date().toISOString().slice(0,10) }
-        ];
-        await userDocRef.update({
-          'possessions.balance': newBalance,
-          'possessions.history': newHistory
-        });
-        closeModal();
-        location.reload();
-      });
-      showModal('modal-add-expense');
-    };
+    });
 
     // --- Transaction History Display ---
     const historyList = document.getElementById('history-list');
@@ -268,27 +242,31 @@ firebase.auth().onAuthStateChanged(async function(user) {
       }).join('');
     }
 
-    // --- Card Navigation ---
-    const savingsCard = document.getElementById('savings-card');
-    if (savingsCard) {
-      savingsCard.onclick = function() {
-        window.location.href = 'savings.html';
-      };
-    }
-    const debtsCard = document.getElementById('debts-card');
-    if (debtsCard) {
-      debtsCard.onclick = function() {
-        window.location.href = 'debts.html';
-      };
-    }
-    const possessionsCard = document.getElementById('possessions-card');
-    if (possessionsCard) {
-      possessionsCard.onclick = function() {
-        window.location.href = 'possessions.html';
-      };
-    }
-
   } catch (err) {
     alert('Error loading dashboard: ' + err.message);
   }
-}); 
+});
+
+// Utility to add a robust tap/click listener
+function addTapListener(element, handler) {
+  let startX, startY, isScrolling;
+
+  element.addEventListener('pointerdown', (e) => {
+    if (e.button !== 0) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    isScrolling = false;
+  }, { passive: true });
+
+  element.addEventListener('pointermove', (e) => {
+    if (Math.abs(e.clientX - startX) > 10 || Math.abs(e.clientY - startY) > 10) {
+      isScrolling = true;
+    }
+  }, { passive: true });
+
+  element.addEventListener('pointerup', (e) => {
+    if (!isScrolling && e.button === 0) {
+      handler(e);
+    }
+  });
+} 

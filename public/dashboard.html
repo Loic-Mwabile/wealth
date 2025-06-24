@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1>Wealth</h1>
+    <h1 class="page-title">Wealth</h1>
     <div class="dashboard-grid">
         <div class="card clickable-card" id="possessions-card">
             <h2>Possessions</h2>
@@ -17,24 +17,21 @@
             <h2>Savings</h2>
             <div class="card-value" id="savings-total">0 ₹</div>
         </div>
-        <div class="card clickable-card" id="networth-card">
-            <h2>Net Worth</h2>
-            <div class="card-value" id="net-worth">0 ₹</div>
-        </div>
         <div class="card clickable-card" id="debts-card">
             <h2>Debts</h2>
             <div class="card-value" id="debts-total">0 ₹</div>
-        </div>
-        <div class="card clickable-card" id="expenses-card">
-            <h2>Expenses</h2>
-            <div class="card-value" id="expenses-total">0 ₹</div>
-            <button id="add-expense-btn" class="card-action-btn">Add Expense</button>
         </div>
         <div class="card" id="history-card">
             <h2>Recent Activity</h2>
             <ul id="history-list"></ul>
         </div>
     </div>
+
+    <div class="net-worth-container">
+      <span>Net Worth</span>
+      <span id="net-worth-value">0 ₹</span>
+    </div>
+
     <div class="dashboard-actions">
         <button id="add-income-btn">Add Income</button>
         <button id="transfer-btn">Transfer To Savings</button>
@@ -45,7 +42,6 @@
     <div id="modal-add-income" class="modal" style="display:none;"></div>
     <div id="modal-transfer" class="modal" style="display:none;"></div>
     <div id="modal-pay-debt" class="modal" style="display:none;"></div>
-    <div id="modal-add-expense" class="modal" style="display:none;"></div>
 
     <script src="firebaseConfig.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -54,6 +50,7 @@
     <script>
       firebase.initializeApp(window.firebaseConfig);
     </script>
+    <script src="js/auth.js"></script>
     <script src="js/dashboard.js"></script>
 </body>
 </html> 

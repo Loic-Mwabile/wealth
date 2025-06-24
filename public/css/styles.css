@@ -6,6 +6,10 @@ body {
     padding: 0;
 }
 
+body.auth-loading {
+    display: none;
+    visibility: hidden;
+}
 
 /* Ensure all clickable elements are touch-friendly */
 button, .clickable-card, .card-action-btn {
@@ -22,6 +26,11 @@ button, .clickable-card, .card-action-btn {
 h1 {
     color: #2d98da;
 }
+
+.page-title {
+  text-align: center;
+}
+
 form, div {
     margin: 20px auto;
     max-width: 400px;
@@ -178,6 +187,12 @@ a:hover {
     display: flex;
     flex-direction: column;
     align-items: stretch;
+}
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
 }
 .modal h3 {
     margin-top: 0;
@@ -499,4 +514,27 @@ a:hover {
         flex-direction: column;
         gap: 16px;
     }
+}
+
+.net-worth-container {
+  max-width: 700px;
+  margin: 24px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(44, 62, 80, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.net-worth-container span:first-child {
+  color: #3867d6;
+  letter-spacing: 1px;
+}
+
+.net-worth-container span:last-child {
+  color: #222f3e;
 } 
