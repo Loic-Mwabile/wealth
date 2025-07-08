@@ -441,3 +441,14 @@ protectPage(async function(user) {
     alert('Error loading savings: ' + err.message);
   }
 }); 
+
+
+if (window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.App) {
+  Capacitor.Plugins.App.addListener('backButton', () => {
+    if (window.history.length > 1) {
+      window.history.back(); // Go to previous page
+    } else {
+      Capacitor.Plugins.App.exitApp(); // Close the app
+    }
+  });
+}
