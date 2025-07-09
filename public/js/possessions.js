@@ -24,14 +24,31 @@ function addTapListener(element, handler) {
   });
 }
 
-// --- Modal helpers ---
+// --- Modal helpers with smooth transition ---
 function showModal(modalId) {
-  document.getElementById('modal-overlay').style.display = 'block';
-  document.getElementById(modalId).style.display = 'flex';
+  document.querySelectorAll('.modal').forEach(m => {
+    m.classList.remove('modal--visible');
+    m.style.display = 'none';
+  });
+  const overlay = document.getElementById('modal-overlay');
+  const modal = document.getElementById(modalId);
+  if (!overlay || !modal) {
+    console.error('Modal elements not found:', { overlay: !!overlay, modal: !!modal });
+    return;
+  }
+  overlay.style.display = 'block';
+  modal.style.display = 'flex';
+  void modal.offsetWidth;
+  setTimeout(() => {
+    modal.classList.add('modal--visible');
+  }, 10);
 }
 function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
-  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+  document.querySelectorAll('.modal').forEach(m => {
+    m.classList.remove('modal--visible');
+    setTimeout(() => { m.style.display = 'none'; }, 250);
+  });
 }
 
 // --- Add Income Modal ---
@@ -46,9 +63,9 @@ function renderAddIncomeModal(onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Add Income</h3>
-      <label>Amount (₹)</label>
+      <label for="income-amount">Amount (₹)</label>
       <input type="number" id="income-amount" min="1" required />
-      <label>Source</label>
+      <label for="income-source">Source</label>
       <input type="text" id="income-source" placeholder="e.g. Salary, Freelance" />
       <div class="modal-actions">
         <button class="cancel" type="button">Cancel</button>
@@ -81,9 +98,9 @@ function renderAddExpenseModal(onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Add Expense</h3>
-      <label>Amount (₹)</label>
+      <label for="expense-amount">Amount (₹)</label>
       <input type="number" id="expense-amount" min="1" required />
-      <label>Category</label>
+      <label for="expense-category">Category</label>
       <select id="expense-category">
         <option value="Food">Food</option>
         <option value="Rent">Rent</option>
@@ -92,7 +109,7 @@ function renderAddExpenseModal(onSubmit) {
         <option value="Other">Other</option>
       </select>
       <input type="text" id="expense-category-custom" placeholder="Or enter custom category" />
-      <label>Description</label>
+      <label for="expense-desc">Description</label>
       <input type="text" id="expense-desc" placeholder="Optional description" />
       <div class="modal-actions">
         <button class="cancel" type="button">Cancel</button>

@@ -7,7 +7,13 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <h1 class="page-title">Wealth</h1>
+    <h1 class="page-title" style="display: flex; align-items: center; justify-content: space-between;">
+        <span style="display: flex; align-items: center;">
+          <img src="assets/icons/icon-192x192.png" alt="Wealth Icon" style="width: 50px; height: 40px; vertical-align: middle; margin-right: 8px;">
+          Wealth
+        </span>
+        <button id="logout-btn">Logout</button>
+    </h1>
     <div class="dashboard-grid">
         <div class="card clickable-card" id="possessions-card">
             <h2>Possessions</h2>
@@ -42,6 +48,8 @@
     <div id="modal-add-income" class="modal" style="display:none;"></div>
     <div id="modal-transfer" class="modal" style="display:none;"></div>
     <div id="modal-pay-debt" class="modal" style="display:none;"></div>
+    
+
 
     <script src="firebaseConfig.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>

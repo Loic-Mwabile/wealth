@@ -24,14 +24,31 @@ function addTapListener(element, handler) {
   });
 }
 
-// --- Modal helpers ---
+// --- Modal helpers with smooth transition ---
 function showModal(modalId) {
-  document.getElementById('modal-overlay').style.display = 'block';
-  document.getElementById(modalId).style.display = 'flex';
+  document.querySelectorAll('.modal').forEach(m => {
+    m.classList.remove('modal--visible');
+    m.style.display = 'none';
+  });
+  const overlay = document.getElementById('modal-overlay');
+  const modal = document.getElementById(modalId);
+  if (!overlay || !modal) {
+    console.error('Modal elements not found:', { overlay: !!overlay, modal: !!modal });
+    return;
+  }
+  overlay.style.display = 'block';
+  modal.style.display = 'flex';
+  void modal.offsetWidth;
+  setTimeout(() => {
+    modal.classList.add('modal--visible');
+  }, 10);
 }
 function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
-  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+  document.querySelectorAll('.modal').forEach(m => {
+    m.classList.remove('modal--visible');
+    setTimeout(() => { m.style.display = 'none'; }, 250);
+  });
 }
 if (document.getElementById('modal-overlay')) {
   addTapListener(document.getElementById('modal-overlay'), closeModal);
@@ -43,11 +60,11 @@ function renderAddEnvelopeModal(onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Add Savings Envelope</h3>
-      <label>Name</label>
+      <label for="envelope-name">Name</label>
       <input type="text" id="envelope-name" required />
-      <label>Initial Amount (₹)</label>
+      <label for="envelope-amount">Initial Amount (₹)</label>
       <input type="number" id="envelope-amount" min="0" value="0" required />
-      <label>Goal (₹)</label>
+      <label for="envelope-goal">Goal (₹)</label>
       <input type="number" id="envelope-goal" min="1" value="100" required />
       <div class="modal-actions">
         <button class="cancel" type="button">Cancel</button>
@@ -82,9 +99,9 @@ function renderTransferModal(possessions, savingsArr, onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Transfer to Savings</h3>
-      <label>Amount (₹)</label>
+      <label for="transfer-amount">Amount (₹)</label>
       <input type="number" id="transfer-amount" min="1" max="${possessions}" required />
-      <label>Savings Envelope</label>
+      <label for="transfer-envelope">Savings Envelope</label>
       <select id="transfer-envelope">
         ${savingsArr.map(s => `<option value="${s.id}">${s.name} (${s.amount} ₹)</option>`).join('')}
       </select>
@@ -112,9 +129,9 @@ function renderWithdrawModal(savingsArr, onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Withdraw from Savings</h3>
-      <label>Amount (₹)</label>
+      <label for="withdraw-amount">Amount (₹)</label>
       <input type="number" id="withdraw-amount" min="1" required />
-      <label>Savings Envelope</label>
+      <label for="withdraw-envelope">Savings Envelope</label>
       <select id="withdraw-envelope">
         ${savingsArr.map(s => `<option value="${s.id}" data-max="${s.amount}">${s.name} (${s.amount} ₹)</option>`).join('')}
       </select>

@@ -1,11 +1,28 @@
 // debts.js 
 function showModal(modalId) {
-  document.getElementById('modal-overlay').style.display = 'block';
-  document.getElementById(modalId).style.display = 'flex';
+  document.querySelectorAll('.modal').forEach(m => {
+    m.classList.remove('modal--visible');
+    m.style.display = 'none';
+  });
+  const overlay = document.getElementById('modal-overlay');
+  const modal = document.getElementById(modalId);
+  if (!overlay || !modal) {
+    console.error('Modal elements not found:', { overlay: !!overlay, modal: !!modal });
+    return;
+  }
+  overlay.style.display = 'block';
+  modal.style.display = 'flex';
+  void modal.offsetWidth;
+  setTimeout(() => {
+    modal.classList.add('modal--visible');
+  }, 10);
 }
 function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
-  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+  document.querySelectorAll('.modal').forEach(m => {
+    m.classList.remove('modal--visible');
+    setTimeout(() => { m.style.display = 'none'; }, 250);
+  });
 }
 // --- Render Debts as Cards with Progress Bars ---
 function renderDebtsList(debtsArr) {
@@ -78,11 +95,11 @@ function renderAddDebtModal(onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Add Debt</h3>
-      <label>Name</label>
+      <label for="debt-name">Name</label>
       <input type="text" id="debt-name" required />
-      <label>Amount (₹)</label>
+      <label for="debt-amount">Amount (₹)</label>
       <input type="number" id="debt-amount" min="1" required />
-      <label>Due Date</label>
+      <label for="debt-due">Due Date</label>
       <input type="date" id="debt-due" />
       <div class="modal-actions">
         <button class="cancel" type="button">Cancel</button>
@@ -114,9 +131,9 @@ function renderPayDebtModal(debtsArr, possessions, onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Pay Debt</h3>
-      <label>Amount (₹)</label>
+      <label for="paydebt-amount">Amount (₹)</label>
       <input type="number" id="paydebt-amount" min="1" max="${possessions}" required />
-      <label>From Debt</label>
+      <label for="paydebt-envelope">From Debt</label>
       <select id="paydebt-envelope">
         ${debtsArr.map(d => `<option value="${d.id}">${d.name} (${d.amount} ₹)</option>`).join('')}
       </select>
@@ -145,7 +162,7 @@ function renderMarkPaidModal(debtsArr, onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Mark Debt as Paid</h3>
-      <label>Select Debt</label>
+      <label for="markpaid-envelope">Select Debt</label>
       <select id="markpaid-envelope">
         ${debtsArr.map(d => `<option value="${d.id}">${d.name} (${d.amount} ₹)</option>`).join('')}
       </select>

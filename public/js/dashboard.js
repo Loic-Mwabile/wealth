@@ -15,26 +15,50 @@ function handleCardClick(e) {
 
 
 
-// --- Modal helpers ---
+// --- Modal helpers with smooth transition ---
 function showModal(modalId) {
-  document.getElementById('modal-overlay').style.display = 'block';
-  document.getElementById(modalId).style.display = 'flex';
+  // Hide all modals first
+  document.querySelectorAll('.modal').forEach(m => {
+    m.classList.remove('modal--visible');
+    m.style.display = 'none';
+  });
+  // Show overlay and the requested modal
+  const overlay = document.getElementById('modal-overlay');
+  const modal = document.getElementById(modalId);
+
+  if (!overlay || !modal) {
+    console.error('Modal elements not found:', { overlay: !!overlay, modal: !!modal });
+    return;
+  }
+
+  overlay.style.display = 'block';
+  modal.style.display = 'flex';
+  // Force reflow for transition
+  void modal.offsetWidth;
+  modal.classList.add('modal--visible');
 }
+
 function closeModal() {
   document.getElementById('modal-overlay').style.display = 'none';
-  document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+  document.querySelectorAll('.modal').forEach(m => {
+    m.classList.remove('modal--visible');
+    // Wait for transition to finish before hiding
+    setTimeout(() => { m.style.display = 'none'; }, 250);
+  });
 }
+
 addTapListener(document.getElementById('modal-overlay'), closeModal);
 
 // --- Add Income Modal ---
 function renderAddIncomeModal(onSubmit) {
   const modal = document.getElementById('modal-add-income');
-  modal.innerHTML = `
+  
+  const modalContent = `
     <div class="modal-content">
       <h3>Add Income</h3>
-      <label>Amount (₹)</label>
+      <label for="income-amount">Amount (₹)</label>
       <input type="number" id="income-amount" min="1" required />
-      <label>Source</label>
+      <label for="income-source">Source</label>
       <input type="text" id="income-source" placeholder="e.g. Salary, Freelance" />
       <div class="modal-actions">
         <button class="cancel" type="button">Cancel</button>
@@ -42,6 +66,9 @@ function renderAddIncomeModal(onSubmit) {
       </div>
     </div>
   `;
+  
+  modal.innerHTML = modalContent;
+  
   addTapListener(modal.querySelector('.cancel'), closeModal);
   addTapListener(modal.querySelector('#submit-income'), () => {
     const amount = parseFloat(document.getElementById('income-amount').value);
@@ -60,9 +87,9 @@ function renderTransferModal(savingsArr, possessions, onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Transfer to Savings</h3>
-      <label>Amount (₹)</label>
+      <label for="transfer-amount">Amount (₹)</label>
       <input type="number" id="transfer-amount" min="1" max="${possessions}" required />
-      <label>Savings Envelope</label>
+      <label for="transfer-envelope">Savings Envelope</label>
       <select id="transfer-envelope">
         ${savingsArr.map(s => `<option value="${s.id}">${s.name} (${s.amount} ₹)</option>`).join('')}
       </select>
@@ -90,9 +117,9 @@ function renderPayDebtModal(debtsArr, possessions, onSubmit) {
   modal.innerHTML = `
     <div class="modal-content">
       <h3>Pay Debt</h3>
-      <label>Amount (₹)</label>
+      <label for="paydebt-amount">Amount (₹)</label>
       <input type="number" id="paydebt-amount" min="1" max="${possessions}" required />
-      <label>Debt</label>
+      <label for="paydebt-envelope">Debt</label>
       <select id="paydebt-envelope">
         ${debtsArr.map(d => `<option value="${d.id}">${d.name} (${d.amount} ₹, Due: ${d.dueDate || 'N/A'})</option>`).join('')}
       </select>
@@ -223,6 +250,8 @@ protectPage(async function(user) {
       showModal('modal-pay-debt');
     });
 
+
+    
     // --- Transaction History Display ---
     const historyList = document.getElementById('history-list');
     const history = (data.possessions?.history || []).slice(-5).reverse();
@@ -281,3 +310,12 @@ if (window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.App) {
     }
   });
 }
+
+// --- User info and logout ---
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('logout-btn').addEventListener('click', function() {
+    firebase.auth().signOut().then(function() {
+      window.location.href = 'index.html';
+    });
+  });
+});
