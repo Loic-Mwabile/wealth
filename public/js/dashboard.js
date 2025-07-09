@@ -301,12 +301,34 @@ function addTapListener(element, handler) {
 } 
 
 
+// --- Android back button handling for PWA/standalone ---
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+
+if (isStandalone()) {
+  window.addEventListener('popstate', function (event) {
+    // Default browser behavior: go back in history
+    // No need to override unless you want custom logic
+  });
+  window.addEventListener('beforeunload', function (e) {
+    if (window.history.length > 1) {
+      window.history.back();
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
+    }
+    // If no history, allow exit
+  });
+}
+
+// Existing Capacitor logic (if running as native app)
 if (window.Capacitor && Capacitor.Plugins && Capacitor.Plugins.App) {
   Capacitor.Plugins.App.addListener('backButton', () => {
     if (window.history.length > 1) {
-      window.history.back(); // Go to previous page
+      window.history.back();
     } else {
-      Capacitor.Plugins.App.exitApp(); // Close the app
+      Capacitor.Plugins.App.exitApp();
     }
   });
 }
