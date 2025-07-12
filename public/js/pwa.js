@@ -155,4 +155,48 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(installButton);
     }
   }
-}); 
+});
+
+// Loader animé avec icône et spinner
+function showAppLoader() {
+  if (document.getElementById('app-loader')) return;
+  const loader = document.createElement('div');
+  loader.id = 'app-loader';
+  loader.innerHTML = `
+    <img src="assets/icons/icon-192x192.png" alt="App Icon" class="loader-icon"/>
+    <div class="spinner"></div>
+  `;
+  document.body.appendChild(loader);
+}
+
+function hideAppLoader() {
+  const loader = document.getElementById('app-loader');
+  if (loader) {
+    loader.classList.add('hide');
+    setTimeout(() => loader.remove(), 400);
+  }
+}
+
+// Affiche le loader au chargement initial
+showAppLoader();
+window.addEventListener('DOMContentLoaded', hideAppLoader);
+
+// Affiche le loader lors des transitions de page
+function setupPageTransitions() {
+  const links = document.querySelectorAll('a[href$=".html"]');
+  links.forEach(link => {
+    link.addEventListener('click', function(e) {
+      // Ouvre dans la même fenêtre uniquement
+      if (link.target === '' || link.target === '_self' || !link.target) {
+        showAppLoader();
+      }
+    });
+  });
+  // Pour les boutons qui changent de page via JS
+  document.querySelectorAll('button[data-href]').forEach(btn => {
+    btn.addEventListener('click', function() {
+      showAppLoader();
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', setupPageTransitions); 
