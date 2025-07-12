@@ -25,7 +25,8 @@
     
     <link rel="manifest" href="manifest.json">
     <title>Wealth - Dashboard</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preload" href="css/styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="css/styles.css"></noscript>
     <style>html, body, #app-loader { background: #0E1116 !important; }</style>
 </head>
 <body>
