@@ -311,15 +311,7 @@ if (isStandalone()) {
     // Default browser behavior: go back in history
     // No need to override unless you want custom logic
   });
-  window.addEventListener('beforeunload', function (e) {
-    if (window.history.length > 1) {
-      window.history.back();
-      e.preventDefault();
-      e.returnValue = '';
-      return '';
-    }
-    // If no history, allow exit
-  });
+  // Removed beforeunload listener to prevent annoying popup
 }
 
 // Existing Capacitor logic (if running as native app)
